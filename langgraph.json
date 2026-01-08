@@ -3,7 +3,7 @@
         "."
     ],
     "graphs": {
-        "agent": "./src/main.py:agent"
+        "decision_duel": "./src/agents/decision_duel/agent.py:agent"
     },
     "env": ".env"
 }
