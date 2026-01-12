@@ -10,6 +10,8 @@ dependencies = [
     "langchain>=1.2.1",
     "langchain-openai>=1.1.6",
     "langgraph>=1.0.5",
+    "langgraph-checkpoint-postgres>=3.0.2",
+    "standard>=1.0.3",
     "yfinance>=1.0",
 ]
 
