@@ -12,6 +12,10 @@ class RefereeDecision(TypedDict):
         ge=0,
         le=10,
     )
+    variants: list[dict[str, str]] = Field(
+        description="List of variants of the asset, each containing a 'variant' name and an 'argument' explaining why it is a good variant",
+        default_factory=list,
+    )
     bull_probability: int = Field(
         description="Probability of Bull winning (0-100)", default=0, ge=0, le=100
     )
@@ -22,6 +26,8 @@ class RefereeDecision(TypedDict):
 
 class State(TypedDict):
     asset: str | None
+    term: Literal["short-term", "mid-term", "long-term"] = Field(default="mid-term")
+    language: Literal["English", "Spanish"] = Field(default="Spanish")
     messages: Annotated[list, add_messages]
     response_bull: str | None
     response_bear: str | None

@@ -8,6 +8,8 @@ from agents.decision_duel.referee.tools import tools
 
 def referee(state: State):
     asset = state.get("asset")
+    term = state.get("term")
+    language = state.get("language")
 
     # Usamos el modelo del entorno del usuario
     llm = ChatOpenAI(model="gpt-4.1-mini")
@@ -16,6 +18,8 @@ def referee(state: State):
         asset=asset,
         date=datetime.now().strftime("%d/%m/%Y"),
         messages=state.get("messages", []),
+        language=language,
+        term=term,
     )
 
     # Cambiamos state_modifier por prompt para compatibilidad

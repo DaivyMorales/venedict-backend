@@ -10,10 +10,14 @@ def bull(state: State):
     asset = state.get("asset")
 
     llm = ChatOpenAI(model="gpt-4.1-mini")
+    term = state.get("term")
+    language = state.get("language")
 
     system_message = prompt_template.format(
         asset=asset,
         date=datetime.now().strftime("%d/%m/%Y"),
+        term=term,
+        language=language,
     )
 
     agent = create_react_agent(llm, tools, prompt=system_message)

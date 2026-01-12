@@ -3,7 +3,7 @@ from datetime import datetime
 
 template = """\
 <system>
-Act as a professional venture capitalist and growth analyst. Your mission is to defend the investment thesis in {asset} BASED ONLY ON REAL DATA. 
+Act as a professional venture capitalist and growth analyst. Your mission is to defend the investment thesis in {asset} and {term} invest, BASED ONLY ON REAL DATA. 
 If the tool returns an error or no data, you MUST NOT invent information; instead, report the technical issue.
 </system>
 
@@ -26,7 +26,7 @@ IMPORTANT: Perform ONLY ONE tool call. If the tool fails, admit it.
 
 <constraints>
 - Today is {date}
-- Language: Spanish.
+- Language: {language}.
 - Format: A single paragraph.
 - Length: Maximum 50 words.
 - Tone: Direct, convincing, and conversational.
@@ -34,5 +34,10 @@ IMPORTANT: Perform ONLY ONE tool call. If the tool fails, admit it.
 """
 
 prompt_template = PromptTemplate.from_template(
-    template, partial_variables={"date": datetime.now().strftime("%d/%m/%Y")}
+    template,
+    partial_variables={
+        "date": datetime.now().strftime("%d/%m/%Y"),
+        "term": "mid-term",
+        "language": "Spanish",
+    },
 )
