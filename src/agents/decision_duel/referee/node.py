@@ -11,8 +11,13 @@ def referee(state: State):
     term = state.get("term")
     language = state.get("language")
 
-    # Usamos el modelo del entorno del usuario
-    llm = ChatOpenAI(model="gpt-4.1-mini")
+    # Usamos gpt-4o-mini (corrección de typo)
+    llm = ChatOpenAI(model="gpt-4o-mini")
+
+    # LLM específico para la salida estructurada (sin streaming para evitar tokens de JSON en el stream)
+    structured_llm = ChatOpenAI(
+        model="gpt-4o-mini", streaming=False
+    ).with_structured_output(RefereeDecision)
 
     system_message = prompt_template.format(
         asset=asset,
@@ -22,10 +27,9 @@ def referee(state: State):
         term=term,
     )
 
-    # Cambiamos state_modifier por prompt para compatibilidad
     agent = create_react_agent(llm, tools, prompt=system_message)
 
-    # Ejecutamos el agente
+    # Ejecutamos el agente (este sí puede streamear su razonamiento)
     result = agent.invoke(
         {
             "messages": [
@@ -34,9 +38,7 @@ def referee(state: State):
         }
     )
 
-    # Para obtener la salida estructurada final, usamos una segunda llamada o pedimos al agente que formatee.
-    # Una forma limpia es invocar el LLM con structured_output usando el resultado del proceso anterior.
-    structured_llm = llm.with_structured_output(RefereeDecision)
+    # El veredicto final se obtiene de forma silenciosa
     final_verdict = structured_llm.invoke(
         [
             ("system", system_message),

@@ -3,6 +3,7 @@ import requests
 import json
 import yfinance as yf
 from datetime import datetime
+import os
 
 
 @tool(
@@ -17,7 +18,7 @@ def search(query: str) -> str:
         {"q": query, "location": "Bogota, Colombia", "gl": "co", "hl": "en"}
     )
     headers = {
-        "X-API-KEY": "eb119bd476012142212b51233047635acfa1749d",
+        "X-API-KEY": os.getenv("SERPER_API_KEY"),
         "Content-Type": "application/json",
     }
 

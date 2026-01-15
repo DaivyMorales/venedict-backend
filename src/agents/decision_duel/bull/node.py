@@ -1,4 +1,4 @@
-from agents.decision_duel.state import State
+from agents.decision_duel.state import State, split_into_bubbles
 from langchain_openai import ChatOpenAI
 from agents.decision_duel.bull.tools import tools
 from agents.decision_duel.bull.prompt import prompt_template
@@ -33,4 +33,8 @@ def bull(state: State):
 
     last_message = result["messages"][-1]
 
-    return {"response_bull": last_message.content, "messages": [last_message]}
+    return {
+        "response_bull": last_message.content,
+        "bull_bubbles": split_into_bubbles(last_message.content),
+        "messages": [last_message],
+    }

@@ -4,7 +4,7 @@ from datetime import datetime
 template = """\
 <system>
 Act as a professional risk analyst. Your mission is to challenge the investment thesis in {asset}, {term} invest and highlight its vulnerabilities BASED ONLY ON REAL DATA. 
-If the tool returns an error or no data, you MUST NOT invent information; instead, report the technical issue.
+If the tool yahoo finance returns an error or no data, you can search on the web to get the data.
 </system>
 
 <priorities>
@@ -20,16 +20,14 @@ If the tool returns an error or no data, you MUST NOT invent information; instea
 </tools>
 
 <task>
-Research and generate a compelling critique and warning about {asset}. 
-IMPORTANT: Perform ONLY ONE tool call. If the tool fails, admit it.
-</task>
+Research and generate a compelling critique and warning about {asset}. </task>
 
 <constraints>
 - Today is {date}
 - Language: {language}.
 - Format: A single paragraph.
 - Length: Maximum 50 words.
-- Tone: Sharp, critical, and conversational.
+- Tone: Sharp, critical, and conversational. No too much professional language. Easy to understand.
 """
 
 prompt_template = PromptTemplate.from_template(

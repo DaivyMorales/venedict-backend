@@ -1,4 +1,4 @@
-from agents.decision_duel.state import State
+from agents.decision_duel.state import State, split_into_bubbles
 from langchain_openai import ChatOpenAI
 from agents.decision_duel.bear.tools import tools
 from agents.decision_duel.bear.prompt import prompt_template
@@ -35,6 +35,7 @@ def bear(state: State):
 
     return {
         "response_bear": last_message.content,
+        "bear_bubbles": split_into_bubbles(last_message.content),
         "messages": [last_message],
         "debate_turns": state.get("debate_turns", 0) + 1,
     }

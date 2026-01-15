@@ -1,14 +1,17 @@
 from dotenv import load_dotenv
+from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import json
+from langchain_core.messages import HumanMessage
 
+# Load environment variables first
 load_dotenv()
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+# Internal imports after load_dotenv
 from api.db import CheckpointerDep, lifespan
 from agents.decision_duel.agent import make_graph
-from langchain_core.messages import HumanMessage
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(lifespan=lifespan)
 
@@ -50,7 +53,7 @@ async def chat(chat_id: str, item: Message, checkpointer: CheckpointerDep):
     }
 
     agent = make_graph(config={"checkpointer": checkpointer})
-    response = agent.invoke(state, config)
+    response = await agent.ainvoke(state, config)
 
     return response
 
@@ -69,7 +72,6 @@ async def stream_chat(chat_id: str, item: Message, checkpointer: CheckpointerDep
     async def generate_response():
         agent = make_graph(config={"checkpointer": checkpointer})
 
-        # Initial state is important for the referee and other nodes
         state = {
             "asset": item.asset,
             "term": item.term,
@@ -77,10 +79,29 @@ async def stream_chat(chat_id: str, item: Message, checkpointer: CheckpointerDep
             "messages": [human_message],
         }
 
-        async for message_chunk, metadata in agent.astream(
-            state, config, stream_mode="messages"
+        async for event in agent.astream(
+            state, config, stream_mode=["messages", "updates"]
         ):
-            if message_chunk.content:
-                yield f"data: {message_chunk.content}\n\n"
+            kind, content = event
+
+            if kind == "updates":
+                for node_name, update in content.items():
+                    if "referee_decision" in update:
+                        payload = {
+                            "type": "decision",
+                            "decision": update["referee_decision"],
+                            "sender": node_name,
+                        }
+                        yield f"data: {json.dumps(payload)}\n\n"
+
+                    elif node_name in ["bull", "bear"]:
+                        bubbles = update.get(f"{node_name}_bubbles", [])
+                        for bubble in bubbles:
+                            payload = {
+                                "type": "message",
+                                "content": bubble,
+                                "sender": node_name,
+                            }
+                            yield f"data: {json.dumps(payload)}\n\n"
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
